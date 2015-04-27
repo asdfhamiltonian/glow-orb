@@ -4,6 +4,7 @@
 #Futher adatped with algorithms/equations from page "How to Compute Planetary Positions"
 #by Paul Schlyter http://www.stjarnhimlen.se/comp/ppcomp.html#20
 
+
 from math import *
 import datetime
 
