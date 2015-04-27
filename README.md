@@ -24,5 +24,5 @@ This code basically adds a menu to sun2.py. Multiple cities are available from t
 can input their own coordinates. Still haven't found a gracefull way to exit the tkinter display loop at the end though
 so it's a bit of a work in progress
 
-luna.py
+luna.py:
 This contains an object for calculting the moon position for a given location. Should be accurate to within about 4 arc minutes.
