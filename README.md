@@ -12,17 +12,11 @@ of timekeeping basically divides day and night each into six equal
 hours, so the clock hand moves at a different speed during night and
 day.
 
-More information on wadokei are available on wikipedia:
+More information on wadokei is available on wikipedia:
 http://en.wikipedia.org/wiki/Japanese_clock
 
-If the entire code is run, it will display a wadokei time for the
-location entered on line 175.
-
 wadokeinew.py:
-
-This code basically adds a menu to sun2.py. Multiple cities are available from the menu, or alternatively the user
-can input their own coordinates. Still haven't found a gracefull way to exit the tkinter display loop at the end though
-so it's a bit of a work in progress
+This code is a menu for selecting one of multiple cities, or alternatively the user can input custom coordinates. The code will then render a continuously updating wadokei for that location.
 
 luna.py:
 
