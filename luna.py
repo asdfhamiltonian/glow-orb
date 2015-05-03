@@ -34,6 +34,21 @@ def fnatan2(y, x):
         a = a + 2 * pi
     return a
 
+def timeadjust(x, utc):
+    x = x + utc
+    while x < 0:
+        x = x + 24
+    if x > 24:
+        x = x - 24
+    return x
+
+def decimaltominsecs(x):
+    x = x % 1
+    mins = round(x * 60)
+    x = (x * 60) % 1
+    secs = round(x * 60)
+    return (mins, secs)
+
 class Luna(object):
     localLat = 0
     localLong = 0
@@ -45,24 +60,24 @@ class Luna(object):
     az = 0
     alttopoc = 0
     phasestr = ""
+    mra = 0
+    mdecl = 0
+    mpar = 0
+    gmsto = 0
+    msd = 0
+    
     
     def __init__(self, llat = 45, llon = -122):
         self.localLat = llat
         self.localLong = llon
         
-    #y = float(input("year :"))
-    #m = float(input("month :"))
-    #d = float(input("day : "))
-    #h = float(input("hour :"))
-    #mins = float(input("minute :"))
-        
-    def calculate(self):
-        y = datetime.datetime.utcnow().year
-        m = datetime.datetime.utcnow().month
-        d = datetime.datetime.utcnow().day
-        h = datetime.datetime.utcnow().hour
-        mins = datetime.datetime.utcnow().minute
-        second = datetime.datetime.utcnow().second
+    def calculate(self, y, m, d, h, mins, second):
+        #y = datetime.datetime.utcnow().year
+        #m = datetime.datetime.utcnow().month
+        #d = datetime.datetime.utcnow().day
+        #h = datetime.datetime.utcnow().hour
+        #mins = datetime.datetime.utcnow().minute
+        #second = datetime.datetime.utcnow().second
         
         h = h + mins / 60 + second / 3600
         d = fnday(y,m,d,h)
@@ -223,11 +238,12 @@ class Luna(object):
         #now to correct for topocentricity?
         #see http://www.stjarnhimlen.se/comp/ppcomp.html#12b for more info about this
         mpar = asin(1 / rm)
+        msd = asin(0.2725 / rm)
         alttopoc = alt - mpar * cos(alt) 
 
         #calculating "geocentric lattitude" accounting for flattening of earth:
-        gclat = lat1 - radians(0.1924) * sin(2 * lat)
-        rho = 0.99833 + 0.00167 * cos(2 * lat)
+        gclat = lat1 - radians(0.1924) * sin(2 * lat1)
+        rho = 0.99833 + 0.00167 * cos(2 * lat1)
         g = atan( tan(gclat) / cos(ha)) #g is the auxiliary angle?
         topRA = ra - mpar * rho * cos(gclat) * sin(ha) / cos(dec)
         if abs(abs(dec) - pi/2) < 0.001 or abs(gclat) < 0.001:
@@ -249,10 +265,84 @@ class Luna(object):
         self.lonstring = lonstring 
         self.az = az
         self.alttopoc = alttopoc 
-        self.phasestr = phasestr 
+        self.phasestr = phasestr
+        self.mra = topRA
+        self.mdecl = topDecl
+        self.mpar = mpar
+        self.msd = msd
+        self.gmsto = gmsto
+        
+    def now(self):
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day
+        h = datetime.datetime.utcnow().hour
+        mins = datetime.datetime.utcnow().minute
+        second = datetime.datetime.utcnow().second
+        self.calculate(y, m, d, h, mins, second)
 
+    def riseset(self, dis, utcdis):
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day + dis
+        h = datetime.datetime.utcnow().hour
+        mins = datetime.datetime.utcnow().minute
+        second = datetime.datetime.utcnow().second
+        self.calculate(y, m, d, h, mins, second)
+        hmm = radians(-0.583) - self.msd
+        mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(self.mdecl))/(cos(radians(self.localLat)) * cos(self.mdecl))
+        mlha = acos(mlha) * 12 * 15.0 / (15.04107 * pi)
+        utcmoon = (degrees(self.mra) - self.gmsto * 15 - self.localLong) / 15
+        a = mlha
+        c = 1
+        ff = 0
+        while abs(c) > 0.000001:
+            y = datetime.datetime.utcnow().year
+            m = datetime.datetime.utcnow().month
+            d = datetime.datetime.utcnow().day + dis
+            h = utcmoon + a
+            self.calculate(y, m, d, h, 0, 0)
+            hmm = radians(-0.583) - self.msd
+            mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(self.mdecl))/(cos(radians(self.localLat)) * cos(self.mdecl))
+            mlha = acos(mlha) * 12 * 15.0 / (15.04107 * pi)
+            utcmoon = (degrees(self.mra) - self.gmsto * 15 - self.localLong) / 15
+            b = mlha
+            c = abs(b - a)
+            a = mlha
+            ff += 1
+            
+        moonset = mlha + utcmoon
+        c = 1
+        
+        while abs(c) > 0.000001:
+            y = datetime.datetime.utcnow().year
+            m = datetime.datetime.utcnow().month
+            d = datetime.datetime.utcnow().day + dis
+            h = utcmoon - a
+            self.calculate(y, m, d, h, 0, 0)
+            hmm = radians(-0.583) - self.msd
+            mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(self.mdecl))/(cos(radians(self.localLat)) * cos(self.mdecl))
+            mlha = acos(mlha) * 12 * 15.0 / (15.04107 * pi)
+            utcmoon = (degrees(self.mra) - self.gmsto * 15 - self.localLong) / 15
+            b = mlha
+            c = b - a
+            a = mlha
+            ff += 1
+
+        moonrise = utcmoon - mlha    
+        moonrise = timeadjust(moonrise, utcdis)
+        moonrise2 = decimaltominsecs(moonrise)
+        moonset = timeadjust(moonset, utcdis)
+        moonset2 = decimaltominsecs(moonset)
+
+        print("moonrise time is {}:{}:{}".format(int(moonrise),moonrise2[0],moonrise2[1]))
+        print("moonset time is {}:{}:{}".format(int(moonset),moonset2[0],moonset2[1]))
+        print("{} iterations".format(ff))
+        print("moon utc is {}".format(utcmoon))
+        print("ra is {}".format(degrees(self.mra)))
+        
     def print(self):
-        self.calculate()
+        self.now()
         print("days: {}".format(self.d))
         print(self.ra)
         print("RA: " + str(degrees(self.ra)/15))
@@ -262,4 +352,5 @@ class Luna(object):
         print("Azimuth is {} degrees".format(str(degrees(self.az))))
         print("Corrected Alt is {} degrees".format(str(degrees(self.alttopoc))))
         print(self.phasestr)
+
 
