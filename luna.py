@@ -280,6 +280,7 @@ class Luna(object):
         mins = datetime.datetime.utcnow().minute
         second = datetime.datetime.utcnow().second
         self.calculate(y, m, d, h, mins, second)
+        self.print()
 
     def riseset(self, dis, utcdis):
         y = datetime.datetime.utcnow().year
@@ -342,7 +343,7 @@ class Luna(object):
         print("ra is {}".format(degrees(self.mra)))
         
     def print(self):
-        self.now()
+        #self.now()
         print("days: {}".format(self.d))
         print(self.ra)
         print("RA: " + str(degrees(self.ra)/15))
