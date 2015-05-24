@@ -44,9 +44,9 @@ def timeadjust(x, utc):
 
 def decimaltominsecs(x):
     x = x % 1
-    mins = round(x * 60)
+    mins = floor(x * 60)
     x = (x * 60) % 1
-    secs = round(x * 60)
+    secs = floor(x * 60)
     return (mins, secs)
 
 class Luna(object):
