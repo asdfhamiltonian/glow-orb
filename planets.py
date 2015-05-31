@@ -66,11 +66,10 @@ class Planets(object):
         bigE = m + e * sin(m) * (1.0 + e * cos(m))
 
         if e > 0.05:
-                while abs(bvar) > 1E-8:
+                while abs(bvar) > 1E-5:
                         bigE1 = bigE - (bigE - e * sin(bigE) - m) / (1 - e * cos(bigE))
-                        bvar = bigE1 - bigE
-                        bigE = bigE1
-                       
+                        bvar = degrees(bigE1) - degrees(bigE)
+                        bigE = bigE1                     
         xv = a*(cos(bigE) - e)
         yv = a*(sqrt(1 - e * e) * sin(bigE))
         
@@ -80,7 +79,7 @@ class Planets(object):
         xh = r * (cos(N) * cos(v + w) - sin(N) * sin(v + w) * cos(i))
         yh = r * (sin(N) * cos(v + w) + cos(N) * sin(v + w) * cos(i))
         zh = r * (sin(v + w) * sin(i))
-        lonecl = fnatan2( yh, xh)
+        lonecl = fnatan2(yh, xh)
         latecl = fnatan2(zh, sqrt(xh*xh + yh*yh))
         lonCorr = 3.82394E-5 * (365.2422 * ( Epoch - 2000.0 ) - day )
 
@@ -106,7 +105,8 @@ class Planets(object):
         
         xs = rs * cos(lonsun)
         ys = rs * sin(lonsun)
-   
+        zs = 0
+
         """E = Msun + esun * sin(Msun) * (1.0 + esun * cos(Msun))
         xv = cos(E) - esun
         yv = sqrt(1.0 - esun*esun) * sin(E)
@@ -147,6 +147,7 @@ class Planets(object):
         dec = fnatan2(ze, sqrt(xe*xe + ye*ye))
 
         rg = sqrt(xe*xe + ye*ye + ze*ze)
+        
 
         return [xe, ye, ze, ra, dec, rg]
         
@@ -178,7 +179,7 @@ class Planets(object):
         alt = asin(zhor)
 
         ppar = radians(8.794/3600)/ r
-        alttopoc = alt #- ppar * cos(alt)
+        alttopoc = alt - ppar * cos(alt)
 
         return [az, alttopoc, alt, ppar]
     
@@ -736,3 +737,56 @@ class Planets(object):
         topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rme, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
         
+    def calcMercuryDate(self, y, m, d, h, mins, second):
+        lat = self.localLat
+        lon = self.localLong
+        d = fnday(y, m, d, h)
+        d += mins/(60*24) + second/(3600*24)             
+        merArray = self.calcMercury(d)
+        ecl = self.calcecl(d)
+        lonmer = merArray[0]
+        latmer = merArray[1]
+        rmer = merArray[2]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
+        lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
+        xs = sunArray[3]
+        ys = sunArray[4]
+
+        #(self, lonecl, latecl, ecl, r, xs, ys):
+        positionArray = self.calcGeocentric(lonmer, latmer, ecl, rmer, xs, ys)
+        #[xe, ye, ze, ra, dec, rg]
+        xe = positionArray[0]
+        ye = positionArray[1]
+        ze = positionArray[2]
+        ra = positionArray[3]
+        dec = positionArray[4]
+        rmere = positionArray[5]
+        
+
+        """#relativity?
+        secdiff = rmere * 499
+        dmerc = d - secdiff/(3600*24)
+        merArray = self.calcMercury(dmerc)
+        ecl = self.calcecl(d)
+        lonmer = merArray[0]
+        latmer = merArray[1]
+        rmer = merArray[2]
+        #(self, lonecl, latecl, ecl, r, xs, ys):
+        sunArray = self.calcsun(dmerc) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
+        lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
+        xs = sunArray[3]
+        ys = sunArray[4]
+        
+        positionArray = self.calcGeocentric(lonmer, latmer, ecl, rmer, xs, ys)
+        #[xe, ye, ze, ra, dec, rg]
+        xe = positionArray[0]
+        ye = positionArray[1]
+        ze = positionArray[2]
+        ra = positionArray[3]
+        dec = positionArray[4]
+        rmere = positionArray[5]"""
+        
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rmere, ra, dec, lat, lon)
+        return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
