@@ -66,8 +66,7 @@ class Planets(object):
         bigE = m + e * sin(m) * (1.0 + e * cos(m))
 
         if bigE > 0.05:
-                bigE0 = bigE
-                while abs(bvar) > 1E-5:
+                while abs(bvar) > 1E-8:
                         bigE1 = bigE - (bigE - e * sin(bigE) - m) / (1 - e * cos(bigE))
                         bvar = bigE1 - bigE
                         bigE = bigE1
@@ -100,8 +99,8 @@ class Planets(object):
         positionArray = self.calcposition(Nsun, isun, wsun, asun, esun, Msun)
         vsun = positionArray[5]
         rs = positionArray[6]
-        #lonsun = vsun + wsun - trying a different method for higher accuracy
-        lonsun = Msun + wsun
+        #lonsun = fnrange(vsun + wsun)
+        lonsun = Msun + wsun #- Turns out the above method is more accurate
         
         
         xs = rs * cos(lonsun)
@@ -118,7 +117,6 @@ class Planets(object):
         return [rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
 
     def calcGeocentric(self, lonecl, latecl, ecl, r, xs, ys):
-        
         xh = r * cos(lonecl) * cos(latecl)
         yh = r * sin(lonecl) * cos(latecl)
         zh = r * sin(latecl)
@@ -147,6 +145,8 @@ class Planets(object):
         gmst = gmsto + h
         lst = gmst + self.localLong/15
         lst = lst%24
+        print(lst)
+        print(ra)
         ha = lst - degrees(ra)/15
         #print(ha, lst, gmsto)
         while (ha > 24) or (ha < -24):
@@ -167,7 +167,7 @@ class Planets(object):
         alt = asin(zhor)
 
         ppar = radians(8.794/3600)/ r
-        alttopoc = alt - ppar * cos(alt)
+        alttopoc = alt #- ppar * cos(alt)
 
         return [az, alttopoc, alt, ppar]
     
@@ -199,10 +199,11 @@ class Planets(object):
         return [Nm, im, wm, am, em, Mm]
 
     def Mercury(self, day):
-        Nmer =  fnrange(radians(48.3313 + 3.24587E-5 * day))
-        imer = radians(7.0047 + 5.00E-8 * day)
-        wmer =  fnrange(radians(29.1241 + 1.01444E-5 * day))
-        amer = 0.387098 # (AU)
+        
+        Nmer = fnrange(radians(48.3313 + 3.24587E-5 * day))
+        imer = fnrange(radians(7.0047 + 5.00E-8 * day))
+        wmer = fnrange(radians(29.1241 + 1.01444E-5 * day))
+        amer = 0.387098  #(AU)
         emer = 0.205635 + 5.59E-10 * day
         Mmer = fnrange(radians(168.6562 + 4.0923344368 * day))
         return [Nmer, imer, wmer, amer, emer, Mmer]
@@ -327,7 +328,6 @@ class Planets(object):
         r = calcArray[6]
         return [lon, lat, r]
 
-
     def calcJupiter(self, day):
         jArray = self.Jupiter(day)
         satArray = self.Saturn(day)
@@ -438,7 +438,7 @@ class Planets(object):
         mins = datetime.datetime.utcnow().minute
         second = datetime.datetime.utcnow().second
         d = fnday(y, m, d, h)
-        d += m/60 + second/3600            
+        d += mins/(60*24) + second/(3600*24)             
         merArray = self.calcMercury(d)
         ecl = self.calcecl(d)
         lonmer = merArray[0]
@@ -472,7 +472,7 @@ class Planets(object):
         mins = datetime.datetime.utcnow().minute
         second = datetime.datetime.utcnow().second
         d = fnday(y, m, d, h)
-        d += m/60 + second/3600            
+        d += mins/(60*24) + second/(3600*24)            
         vArray = self.calcVenus(d)
         ecl = self.calcecl(d)
         lonv = vArray[0]
@@ -493,6 +493,28 @@ class Planets(object):
         dec = positionArray[4]
         rve = positionArray[5]
 
+        """#light travels 1au in 499 seconds, can use this to calc position
+        #more accurately
+
+        reldiff = rve * 499
+        dvenus = d - reldiff/(3600*24)
+
+        #recalc all venus parameters for time that light reflected off the planet
+        vArray = self.calcVenus(dvenus)
+        lonv = vArray[0]
+        latv = vArray[1]
+        rv = vArray[2]
+
+        #(self, lonecl, latecl, ecl, r, xs, ys):
+        positionArray = self.calcGeocentric(lonv, latv, ecl, rv, xs, ys)
+        #[xe, ye, ze, ra, dec, rg]
+        xe = positionArray[0]
+        ye = positionArray[1]
+        ze = positionArray[2]
+        ra = positionArray[3]
+        dec = positionArray[4]
+        rve = positionArray[5]"""
+
         topArray = self.calcTopocentric(h, mins, second, d, lonsun, rve, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
         
@@ -506,7 +528,7 @@ class Planets(object):
         mins = datetime.datetime.utcnow().minute
         second = datetime.datetime.utcnow().second
         d = fnday(y, m, d, h)
-        d += m/60 + second/3600
+        d += mins/(60*24) + second/(3600*24)  
         jArray = self.calcJupiter(d)
         ecl = self.calcecl(d)
         lonj = jArray[0]
@@ -542,7 +564,7 @@ class Planets(object):
         second = datetime.datetime.utcnow().second 
         #average distance of about 9.538 au
         d = fnday(y, m, d, h)
-        d += m/60 + second/3600
+        d += mins/(60*24) + second/(3600*24) 
         dsatobs = d
         satArray = self.calcSaturn(d)
         ecl = self.calcecl(d)
@@ -579,7 +601,7 @@ class Planets(object):
         mins = datetime.datetime.utcnow().minute
         second = datetime.datetime.utcnow().second
         d = fnday(y, m, d, h)
-        d += m/60 + second/3600            
+        d += mins/(60*24) + second/(3600*24)             
         uArray = self.calcUranus(d)
         ecl = self.calcecl(d)
         lonu = uArray[0]
@@ -615,7 +637,7 @@ class Planets(object):
         mins = datetime.datetime.utcnow().minute
         second = datetime.datetime.utcnow().second
         d = fnday(y, m, d, h)
-        d += m/60 + second/3600            
+        d += mins/(60*24) + second/(3600*24)            
         nArray = self.calcNeptune(d)
         ecl = self.calcecl(d)
         lonn = nArray[0]
@@ -649,7 +671,7 @@ class Planets(object):
         mins = datetime.datetime.utcnow().minute
         second = datetime.datetime.utcnow().second
         d = fnday(y, m, d, h)
-        d += m/60 + second/3600            
+        d += mins/(60*24) + second/(3600*24)             
         mArray = self.calcMars(d)
         ecl = self.calcecl(d)
         lonm = mArray[0]
