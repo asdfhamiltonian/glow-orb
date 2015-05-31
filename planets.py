@@ -65,7 +65,7 @@ class Planets(object):
         
         bigE = m + e * sin(m) * (1.0 + e * cos(m))
 
-        if bigE > 0.05:
+        if e > 0.05:
                 while abs(bvar) > 1E-8:
                         bigE1 = bigE - (bigE - e * sin(bigE) - m) / (1 - e * cos(bigE))
                         bvar = bigE1 - bigE
@@ -73,8 +73,10 @@ class Planets(object):
                        
         xv = a*(cos(bigE) - e)
         yv = a*(sqrt(1 - e * e) * sin(bigE))
+        
         v = fnatan2(yv, xv)
         r = sqrt(xv * xv + yv * yv)
+        
         xh = r * (cos(N) * cos(v + w) - sin(N) * sin(v + w) * cos(i))
         yh = r * (sin(N) * cos(v + w) + cos(N) * sin(v + w) * cos(i))
         zh = r * (sin(v + w) * sin(i))
@@ -99,18 +101,31 @@ class Planets(object):
         positionArray = self.calcposition(Nsun, isun, wsun, asun, esun, Msun)
         vsun = positionArray[5]
         rs = positionArray[6]
-        #lonsun = fnrange(vsun + wsun)
-        lonsun = Msun + wsun #- Turns out the above method is more accurate
+        lonsun = vsun + wsun
+        #lonsun = Msun + wsun - Turns out the above method is more accurate
         
         
         xs = rs * cos(lonsun)
         ys = rs * sin(lonsun)
 
+        """E = Msun + esun * sin(Msun) * (1.0 + esun * cos(Msun))
+        xv = cos(E) - esun
+        yv = sqrt(1.0 - esun*esun) * sin(E)
+
+        vsun = fnatan2(yv, xv)
+        rs = sqrt(xv*xv + yv*yv)
+
+        #lonsun = Msun + wsun
+        lonsun = fnrange(vsun + wsun)
+        
+        xs = rs * cos(lonsun)
+        ys = rs * sin(lonsun)"""
+        
         #sun rectangular coordinates
         xe = xs
         ye = ys * cos(ecl)
         ze = ys * sin(ecl)
-
+        
         RA = atan2(ye, xe)
         Dec = atan2(ze, sqrt(xe*xe + ye*ye))
 
@@ -145,7 +160,6 @@ class Planets(object):
         gmst = gmsto + h
         lst = gmst + self.localLong/15
         lst = lst%24
-        print(lst)
         print(ra)
         ha = lst - degrees(ra)/15
         #print(ha, lst, gmsto)
@@ -167,7 +181,7 @@ class Planets(object):
         alt = asin(zhor)
 
         ppar = radians(8.794/3600)/ r
-        alttopoc = alt #- ppar * cos(alt)
+        alttopoc = alt - ppar * cos(alt)
 
         return [az, alttopoc, alt, ppar]
     
@@ -184,7 +198,7 @@ class Planets(object):
         Nsun = 0.0
         isun = 0.0
         wsun = fnrange(radians(282.9404 + 4.70935E-5 * day))
-        asun = 1.000000  
+        asun = 1.000000 # (AU)
         esun = 0.016709 - 1.151E-9 * day
         Msun = fnrange(radians(356.0470 + 0.9856002585 * day))
         return [Nsun, isun, wsun, asun, esun, Msun]
@@ -199,7 +213,6 @@ class Planets(object):
         return [Nm, im, wm, am, em, Mm]
 
     def Mercury(self, day):
-        
         Nmer = fnrange(radians(48.3313 + 3.24587E-5 * day))
         imer = fnrange(radians(7.0047 + 5.00E-8 * day))
         wmer = fnrange(radians(29.1241 + 1.01444E-5 * day))
@@ -298,7 +311,6 @@ class Planets(object):
         
     def calcMercury(self, day):
         merArray = self.Mercury(day)
-
         N = merArray[0]
         i = merArray[1]
         w = merArray[2]
@@ -458,7 +470,31 @@ class Planets(object):
         ra = positionArray[3]
         dec = positionArray[4]
         rmere = positionArray[5]
+        
 
+        """#relativity?
+        secdiff = rmere * 499
+        dmerc = d - secdiff/(3600*24)
+        merArray = self.calcMercury(dmerc)
+        ecl = self.calcecl(d)
+        lonmer = merArray[0]
+        latmer = merArray[1]
+        rmer = merArray[2]
+        #(self, lonecl, latecl, ecl, r, xs, ys):
+        sunArray = self.calcsun(dmerc) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
+        lonsun = sunArray[1]
+        xs = sunArray[3]
+        ys = sunArray[4]
+        
+        positionArray = self.calcGeocentric(lonmer, latmer, ecl, rmer, xs, ys)
+        #[xe, ye, ze, ra, dec, rg]
+        xe = positionArray[0]
+        ye = positionArray[1]
+        ze = positionArray[2]
+        ra = positionArray[3]
+        dec = positionArray[4]
+        rmere = positionArray[5]"""
+        
         topArray = self.calcTopocentric(h, mins, second, d, lonsun, rmere, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
 
@@ -493,7 +529,7 @@ class Planets(object):
         dec = positionArray[4]
         rve = positionArray[5]
 
-        """#light travels 1au in 499 seconds, can use this to calc position
+        #light travels 1au in 499 seconds, can use this to calc position
         #more accurately
 
         reldiff = rve * 499
@@ -513,7 +549,7 @@ class Planets(object):
         ze = positionArray[2]
         ra = positionArray[3]
         dec = positionArray[4]
-        rve = positionArray[5]"""
+        rve = positionArray[5]
 
         topArray = self.calcTopocentric(h, mins, second, d, lonsun, rve, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
