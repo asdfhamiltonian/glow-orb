@@ -97,17 +97,16 @@ class Planets(object):
         esun = sunArray[4]
         Msun = sunArray[5]
         ecl = radians(23.4393 - 3.563E-07 * day)
-
         positionArray = self.calcposition(Nsun, isun, wsun, asun, esun, Msun)
         vsun = positionArray[5]
         rs = positionArray[6]
-        lonsun = vsun + wsun
-        #lonsun = Msun + wsun - Turns out the above method is more accurate
+        lonsun = fnrange(vsun + wsun)
+        meanlonsun = fnrange(Msun + wsun) #- Turns out this is different from lonsun
         
         
         xs = rs * cos(lonsun)
         ys = rs * sin(lonsun)
-
+   
         """E = Msun + esun * sin(Msun) * (1.0 + esun * cos(Msun))
         xv = cos(E) - esun
         yv = sqrt(1.0 - esun*esun) * sin(E)
@@ -126,10 +125,10 @@ class Planets(object):
         ye = ys * cos(ecl)
         ze = ys * sin(ecl)
         
-        RA = atan2(ye, xe)
-        Dec = atan2(ze, sqrt(xe*xe + ye*ye))
-
-        return [rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
+        RA = fnatan2(ye, xe)
+        Dec = fnatan2(ze, sqrt(xe*xe + ye*ye))
+        
+        return [rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
 
     def calcGeocentric(self, lonecl, latecl, ecl, r, xs, ys):
         xh = r * cos(lonecl) * cos(latecl)
@@ -151,16 +150,14 @@ class Planets(object):
 
         return [xe, ye, ze, ra, dec, rg]
         
-    def calcTopocentric(self, h, mins, second, day, Ls, r, ra, dec, lat, lon):
+    def calcTopocentric(self, h, mins, second, day, meanlonsun, r, ra, dec, lat, lon):
 
         h = h + mins/60 + second/3600
-        
         lat1 = radians(lat)
-        gmsto = 12 * (Ls + pi)/(pi)
+        gmsto = 12 * (meanlonsun + pi)/pi 
         gmst = gmsto + h
         lst = gmst + self.localLong/15
         lst = lst%24
-        print(ra)
         ha = lst - degrees(ra)/15
         #print(ha, lst, gmsto)
         while (ha > 24) or (ha < -24):
@@ -181,7 +178,7 @@ class Planets(object):
         alt = asin(zhor)
 
         ppar = radians(8.794/3600)/ r
-        alttopoc = alt - ppar * cos(alt)
+        alttopoc = alt #- ppar * cos(alt)
 
         return [az, alttopoc, alt, ppar]
     
@@ -456,8 +453,9 @@ class Planets(object):
         lonmer = merArray[0]
         latmer = merArray[1]
         rmer = merArray[2]
-        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
         lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
         xs = sunArray[3]
         ys = sunArray[4]
 
@@ -483,6 +481,7 @@ class Planets(object):
         #(self, lonecl, latecl, ecl, r, xs, ys):
         sunArray = self.calcsun(dmerc) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
         lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
         xs = sunArray[3]
         ys = sunArray[4]
         
@@ -495,7 +494,7 @@ class Planets(object):
         dec = positionArray[4]
         rmere = positionArray[5]"""
         
-        topArray = self.calcTopocentric(h, mins, second, d, lonsun, rmere, ra, dec, lat, lon)
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rmere, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
 
     def calcVenusNow(self):
@@ -514,8 +513,9 @@ class Planets(object):
         lonv = vArray[0]
         latv = vArray[1]
         rv = vArray[2]
-        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
         lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
         xs = sunArray[3]
         ys = sunArray[4]
 
@@ -529,7 +529,7 @@ class Planets(object):
         dec = positionArray[4]
         rve = positionArray[5]
 
-        #light travels 1au in 499 seconds, can use this to calc position
+        """#light travels 1au in 499 seconds, can use this to calc position
         #more accurately
 
         reldiff = rve * 499
@@ -549,9 +549,9 @@ class Planets(object):
         ze = positionArray[2]
         ra = positionArray[3]
         dec = positionArray[4]
-        rve = positionArray[5]
+        rve = positionArray[5]"""
 
-        topArray = self.calcTopocentric(h, mins, second, d, lonsun, rve, ra, dec, lat, lon)
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rve, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
         
     def calcJupiterNow(self):
@@ -570,8 +570,9 @@ class Planets(object):
         lonj = jArray[0]
         latj = jArray[1]
         rj = jArray[2]
-        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
         lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
         xs = sunArray[3]
         ys = sunArray[4]
         
@@ -586,7 +587,7 @@ class Planets(object):
         rje = positionArray[5]
 
         #(self, h, mins, second, day, Ls, r, RA, Dec, lat, lon)
-        topArray = self.calcTopocentric(h, mins, second, d, lonsun, rje, ra, dec, lat, lon)
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rje, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1])]
         
     def calcSaturnNow(self):
@@ -607,8 +608,9 @@ class Planets(object):
         lonsat = satArray[0]
         latsat = satArray[1]
         rsat = satArray[2]
-        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
         lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
         xs = sunArray[3]
         ys = sunArray[4]
         
@@ -623,7 +625,7 @@ class Planets(object):
         rsate = positionArray[5]
 
         #(self, h, mins, second, day, Ls, r, RA, Dec, lat, lon)
-        topArray = self.calcTopocentric(h, mins, second, d, lonsun, rsate, ra, dec, lat, lon)
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rsate, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
 
 
@@ -643,8 +645,9 @@ class Planets(object):
         lonu = uArray[0]
         latu = uArray[1]
         ru = uArray[2]
-        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
         lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
         xs = sunArray[3]
         ys = sunArray[4]
 
@@ -659,7 +662,7 @@ class Planets(object):
         rue = positionArray[5]
 
         #(self, h, mins, second, day, Ls, r, RA, Dec, lat, lon)
-        topArray = self.calcTopocentric(h, mins, second, d, lonsun, rue, ra, dec, lat, lon)
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rue, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
         
 
@@ -679,8 +682,9 @@ class Planets(object):
         lonn = nArray[0]
         latn = nArray[1]
         rn = nArray[2]
-        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
         lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
         xs = sunArray[3]
         ys = sunArray[4]
 
@@ -694,7 +698,7 @@ class Planets(object):
         dec = positionArray[4]
         rne = positionArray[5]
 
-        topArray = self.calcTopocentric(h, mins, second, d, lonsun, rne, ra, dec, lat, lon)
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rne, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
 
     def calcMarsNow(self):
@@ -713,8 +717,9 @@ class Planets(object):
         lonm = mArray[0]
         latm = mArray[1]
         rm = mArray[2]
-        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
         lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
         xs = sunArray[3]
         ys = sunArray[4]
 
@@ -728,6 +733,6 @@ class Planets(object):
         dec = positionArray[4]
         rme = positionArray[5]
 
-        topArray = self.calcTopocentric(h, mins, second, d, lonsun, rme, ra, dec, lat, lon)
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rme, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
         
