@@ -790,3 +790,70 @@ class Planets(object):
         
         topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rmere, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
+
+    def calcPlutoThatIsNotAPlanetNow(self):
+        lat = self.localLat
+        lon = self.localLong
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day
+        h = datetime.datetime.utcnow().hour
+        mins = datetime.datetime.utcnow().minute
+        second = datetime.datetime.utcnow().second
+        d = fnday(y, m, d, h)
+        d += mins/(60*24) + second/(3600*24)
+        #now to do some calculations for pluto's position based on numerical
+        #integration based calculations for pluto's orbit, following
+        #Paul Schlyter's example
+        S = radians(50.03 + 0.033459652 * d)
+        P = radians(238.95 + 0.003968789 * d)
+
+        lonecl = radians(238.9508 + 0.00400703 * d)
+        lonadd = - 19.799 * sin(P) + 19.848 * cos(P)
+        lonadd += 0.897 *sin(2*P) - 4.956 * cos(2*P)
+        lonadd += 0.610 * sin(3*P) + 1.211 * cos(3*P)
+        lonadd += -0.341 * sin(4*P) - 0.190 * cos(4*P)
+        lonadd += 0.128 * sin(5*P) - 0.034 * cos(5*P)
+        lonadd += -0.038 * sin(6*P) + 0.031 * cos(6*P)
+        lonadd += 0.020 * sin(S-P) - 0.010 * cos(S-P)
+        lonecl += radians(lonadd)
+
+        latecl = radians(-3.9082)
+        latadd = -5.453 * sin(P) - 14.975 * cos(P)
+        latadd += 3.527 * sin(2*P) + 1.673 * cos(2*P)
+        latadd += -1.051 * sin(3*P) + 0.328 * cos(3*P)
+        latadd += 0.179 * sin(4*P) - 0.292 * cos(4*P)
+        latadd += 0.019 * sin(5*P) + 0.100 * cos(5*P)
+        latadd += -0.031 * sin(6*P) - 0.026 * cos(6*P)
+        latadd += 0.011 * cos(S-P)
+        latecl += radians(latadd)
+
+        r = 40.72
+        radd = 6.68 * sin(P) + 6.90 * cos(P)
+        radd += -1.18 * sin(2*P) - 0.03 * cos(2*P)
+        radd += +0.15 * sin(3*P) - 0.14 * cos(3*P)
+        r += radians(radd)
+
+        #now for the position calculations etc.
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
+        lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
+        xs = sunArray[3]
+        ys = sunArray[4]
+        ecl = self.calcecl(d)
+
+        positionArray = self.calcGeocentric(lonecl, latecl, ecl, r, xs, ys)
+        #[xe, ye, ze, ra, dec, rg]
+        xe = positionArray[0]
+        ye = positionArray[1]
+        ze = positionArray[2]
+        ra = positionArray[3]
+        dec = positionArray[4]
+        rpe = positionArray[5]
+
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rpe, ra, dec, lat, lon)
+        return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, degrees(dec)]
+                
+        
+        
+        
