@@ -469,7 +469,6 @@ class Planets(object):
         ra = positionArray[3]
         dec = positionArray[4]
         rmere = positionArray[5]
-        
 
         """#relativity?
         secdiff = rmere * 499
@@ -603,7 +602,6 @@ class Planets(object):
         #average distance of about 9.538 au
         d = fnday(y, m, d, h)
         d += mins/(60*24) + second/(3600*24) 
-        dsatobs = d
         satArray = self.calcSaturn(d)
         ecl = self.calcecl(d)
         lonsat = satArray[0]
@@ -763,33 +761,158 @@ class Planets(object):
         dec = positionArray[4]
         rmere = positionArray[5]
         
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rmere, ra, dec, lat, lon)
+        return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
 
-        """#relativity?
-        secdiff = rmere * 499
-        dmerc = d - secdiff/(3600*24)
-        merArray = self.calcMercury(dmerc)
+    def calcVenusDate(self, y, m, d, h, mins, second):
+        lat = self.localLat
+        lon = self.localLong
+        d = fnday(y, m, d, h)
+        d += mins/(60*24) + second/(3600*24)
+        vArray = self.calcVenus(d)
         ecl = self.calcecl(d)
-        lonmer = merArray[0]
-        latmer = merArray[1]
-        rmer = merArray[2]
-        #(self, lonecl, latecl, ecl, r, xs, ys):
-        sunArray = self.calcsun(dmerc) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec]
+        lonv = vArray[0]
+        latv = vArray[1]
+        rv = vArray[2]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
         lonsun = sunArray[1]
         meanlonsun = sunArray[10]
         xs = sunArray[3]
         ys = sunArray[4]
-        
-        positionArray = self.calcGeocentric(lonmer, latmer, ecl, rmer, xs, ys)
+
+        #(self, lonecl, latecl, ecl, r, xs, ys):
+        positionArray = self.calcGeocentric(lonv, latv, ecl, rv, xs, ys)
         #[xe, ye, ze, ra, dec, rg]
         xe = positionArray[0]
         ye = positionArray[1]
         ze = positionArray[2]
         ra = positionArray[3]
         dec = positionArray[4]
-        rmere = positionArray[5]"""
-        
-        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rmere, ra, dec, lat, lon)
+        rve = positionArray[5]
+
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rve, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
+
+
+    def calcMarsDate(self, y, m, d, h, mins, second):
+        lat = self.localLat
+        lon = self.localLong
+        d = fnday(y, m, d, h)
+        d += mins/(60*24) + second/(3600*24)
+        mArray = self.calcMars(d)
+        ecl = self.calcecl(d)
+        lonm = mArray[0]
+        latm = mArray[1]
+        rm = mArray[2]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
+        lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
+        xs = sunArray[3]
+        ys = sunArray[4]
+        
+        #(self, lonecl, latecl, ecl, r, xs, ys):
+        positionArray = self.calcGeocentric(lonm, latm, ecl, rm, xs, ys)
+        #[xe, ye, ze, ra, dec, rg]
+        xe = positionArray[0]
+        ye = positionArray[1]
+        ze = positionArray[2]
+        ra = positionArray[3]
+        dec = positionArray[4]
+        rme = positionArray[5]
+
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rme, ra, dec, lat, lon)
+        return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
+
+    def calcJupiterDate(self, y, m, d, h, mins, second):
+        lat = self.localLat
+        lon = self.localLong
+        d = fnday(y, m, d, h)
+        d += mins/(60*24) + second/(3600*24)
+        jArray = self.calcJupiter(d)
+        ecl = self.calcecl(d)
+        lonj = jArray[0]
+        latj = jArray[1]
+        rj = jArray[2]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
+        lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
+        xs = sunArray[3]
+        ys = sunArray[4]
+        
+        #(self, lonecl, latecl, ecl, r, xs, ys):
+        positionArray = self.calcGeocentric(lonj, latj, ecl, rj, xs, ys)
+        #[xe, ye, ze, ra, dec, rg]
+        xe = positionArray[0]
+        ye = positionArray[1]
+        ze = positionArray[2]
+        ra = positionArray[3]
+        dec = positionArray[4]
+        rje = positionArray[5]
+
+        #(self, h, mins, second, day, Ls, r, RA, Dec, lat, lon)
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rje, ra, dec, lat, lon)
+        return [degrees(topArray[0]), degrees(topArray[1])]
+
+    def calcSaturnDate(self, y, m, d, h, mins, second):
+        lat = self.localLat
+        lon = self.localLong
+        d = fnday(y, m, d, h)
+        d += mins/(60*24) + second/(3600*24)
+        satArray = self.calcSaturn(d)
+        ecl = self.calcecl(d)
+        lonsat = satArray[0]
+        latsat = satArray[1]
+        rsat = satArray[2]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
+        lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
+        xs = sunArray[3]
+        ys = sunArray[4]
+        
+        #(self, lonecl, latecl, ecl, r, xs, ys):
+        positionArray = self.calcGeocentric(lonsat, latsat, ecl, rsat, xs, ys)
+        #[xe, ye, ze, ra, dec, rg]
+        xe = positionArray[0]
+        ye = positionArray[1]
+        ze = positionArray[2]
+        ra = positionArray[3]
+        dec = positionArray[4]
+        rsate = positionArray[5]
+
+        #(self, h, mins, second, day, Ls, r, RA, Dec, lat, lon)
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rsate, ra, dec, lat, lon)
+        return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
+
+    def calcUranusDate(self, y, m, d, h, mins, second):
+        lat = self.localLat
+        lon = self.localLong
+        d = fnday(y, m, d, h)
+        d += mins/(60*24) + second/(3600*24)
+        uArray = self.calcUranus(d)
+        ecl = self.calcecl(d)
+        lonu = uArray[0]
+        latu = uArray[1]
+        ru = uArray[2]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
+        lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
+        xs = sunArray[3]
+        ys = sunArray[4]
+
+        #(self, lonecl, latecl, ecl, r, xs, ys):
+        positionArray = self.calcGeocentric(lonu, latu, ecl, ru, xs, ys)
+        #[xe, ye, ze, ra, dec, rg]
+        xe = positionArray[0]
+        ye = positionArray[1]
+        ze = positionArray[2]
+        ra = positionArray[3]
+        dec = positionArray[4]
+        rue = positionArray[5]
+
+        #(self, h, mins, second, day, Ls, r, RA, Dec, lat, lon)
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rue, ra, dec, lat, lon)
+        return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
+
 
     def calcPlutoThatIsNotAPlanetNow(self):
         lat = self.localLat
@@ -854,6 +977,60 @@ class Planets(object):
         topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rpe, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, degrees(dec)]
                 
-        
-        
+    def calcPlutoDate(self, y, m, d, h, mins, second):
+        lat = self.localLat
+        lon = self.localLong
+        d = fnday(y, m, d, h)
+        d += mins/(60*24) + second/(3600*24)
+        #now to do some calculations for pluto's position based on numerical
+        #integration based calculations for pluto's orbit, following
+        #Paul Schlyter's example
+        S = radians(50.03 + 0.033459652 * d)
+        P = radians(238.95 + 0.003968789 * d)
+
+        lonecl = radians(238.9508 + 0.00400703 * d)
+        lonadd = - 19.799 * sin(P) + 19.848 * cos(P)
+        lonadd += 0.897 *sin(2*P) - 4.956 * cos(2*P)
+        lonadd += 0.610 * sin(3*P) + 1.211 * cos(3*P)
+        lonadd += -0.341 * sin(4*P) - 0.190 * cos(4*P)
+        lonadd += 0.128 * sin(5*P) - 0.034 * cos(5*P)
+        lonadd += -0.038 * sin(6*P) + 0.031 * cos(6*P)
+        lonadd += 0.020 * sin(S-P) - 0.010 * cos(S-P)
+        lonecl += radians(lonadd)
+
+        latecl = radians(-3.9082)
+        latadd = -5.453 * sin(P) - 14.975 * cos(P)
+        latadd += 3.527 * sin(2*P) + 1.673 * cos(2*P)
+        latadd += -1.051 * sin(3*P) + 0.328 * cos(3*P)
+        latadd += 0.179 * sin(4*P) - 0.292 * cos(4*P)
+        latadd += 0.019 * sin(5*P) + 0.100 * cos(5*P)
+        latadd += -0.031 * sin(6*P) - 0.026 * cos(6*P)
+        latadd += 0.011 * cos(S-P)
+        latecl += radians(latadd)
+
+        r = 40.72
+        radd = 6.68 * sin(P) + 6.90 * cos(P)
+        radd += -1.18 * sin(2*P) - 0.03 * cos(2*P)
+        radd += +0.15 * sin(3*P) - 0.14 * cos(3*P)
+        r += radians(radd)
+
+        #now for the position calculations etc.
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
+        lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
+        xs = sunArray[3]
+        ys = sunArray[4]
+        ecl = self.calcecl(d)
+
+        positionArray = self.calcGeocentric(lonecl, latecl, ecl, r, xs, ys)
+        #[xe, ye, ze, ra, dec, rg]
+        xe = positionArray[0]
+        ye = positionArray[1]
+        ze = positionArray[2]
+        ra = positionArray[3]
+        dec = positionArray[4]
+        rpe = positionArray[5]
+
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rpe, ra, dec, lat, lon)
+        return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, degrees(dec)]
         
