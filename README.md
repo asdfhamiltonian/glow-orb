@@ -7,7 +7,7 @@ Uses longitude and latitude to calculate sunset time, sunrise time, solar noon,
 and sunlight duration for the present day.
 
 It also contains code for calculating the present time on a Wadokei, a
-disused timekeeping method that began in Edo era Japan. This way
+type of mechanical solar clock that was used in Edo era Japan. This way
 of timekeeping basically divides day and night each into six equal
 hours, so the clock hand moves at a different speed during night and
 day.
