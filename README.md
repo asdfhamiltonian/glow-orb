@@ -7,7 +7,7 @@ Uses longitude and latitude to calculate sunset time, sunrise time, solar noon,
 and sunlight duration for the present day.
 
 It also contains code for calculating the present time on a Wadokei, a
-disused timekeeping method that started use in Edo era Japan. This way
+disused timekeeping method that began in Edo era Japan. This way
 of timekeeping basically divides day and night each into six equal
 hours, so the clock hand moves at a different speed during night and
 day.
@@ -16,8 +16,10 @@ More information on wadokei is available on wikipedia:
 http://en.wikipedia.org/wiki/Japanese_clock
 
 wadokeinew.py:
-This code is a menu for selecting one of multiple cities, or alternatively the user can input custom coordinates. The code will then render a continuously updating wadokei for that location.
+This code includes a menu for selecting one of multiple cities, or alternatively the user can input custom coordinates. The code will then render a continuously updating wadokei for that location.
 
 luna.py:
+Contains a python object for calculting the moon's relative position for a given location on earth. Should be accurate to within about 4 arc minutes.
 
-This contains an object for calculting the moon position for a given location. Should be accurate to within about 4 arc minutes.
+planets.py:
+Contains a python object for calculating the apparent position of any planet for a given location on earth.
