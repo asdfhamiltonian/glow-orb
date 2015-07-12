@@ -29,6 +29,7 @@ def mainmenu():
         if option == "m":
             manualcoords()
             break
+        
         if option == "s":
             select_coords()
             break
