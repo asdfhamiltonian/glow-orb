@@ -8,7 +8,6 @@
 from math import *
 import datetime
 
-
 def degrees(rads):
         return (rads/pi)*180
 
@@ -171,7 +170,8 @@ class Luna(object):
         dlon = dlon - 0.015 * sin(2 * F - 2 * dm)
         dlon = dlon + 0.011 * sin(Mm - 4 * dm)
         lon = radians(dlon) + lon
-
+        
+        
         #latitude terms
         dlat = -0.173 * sin(F - 2 * dm)
         dlat = dlat - 0.055 * sin(Mm - F - 2 * dm)
@@ -180,6 +180,18 @@ class Luna(object):
         dlat = dlat + 0.017 * sin(2 * Mm + F)
         lat = radians(dlat) + lat
 
+        #Need to correct so latitude is between pi/2 and -pi/2 (+90 or -90 degrees)
+        #The above formula had been giving latitudes like "355.679..."
+        #There's some math involved that makes sense if you plot desired output vs. input
+
+        while lat < 0:
+                lat = lat + 2*pi
+        
+        if lat > pi/2 and lat <= 3*pi/2:
+                lat = pi - lat
+        elif lat > 3*pi/2 and lat <= 5*pi/2:
+                lat = lat - 2*pi
+        
         #distance terms earth radii
         rm = rm - 0.58 * cos(Mm - 2 * dm)
         rm = rm - 0.46 * cos(2 * dm)
