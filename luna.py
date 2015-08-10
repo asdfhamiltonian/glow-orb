@@ -48,6 +48,12 @@ def decimaltominsecs(x):
     secs = floor(x * 60)
     return (mins, secs)
 
+def longituderange(phi):
+    return (phi + 180)%360 - 180
+
+def latituderange(theta):
+    return abs(((theta - 90)%360) - 180) - 90
+
 class Luna(object):
     localLat = 0
     localLong = 0
@@ -211,8 +217,8 @@ class Luna(object):
         #geocentric RA and Dec
         ra = fnatan2(ye, xe)
         dec = fnatan2(ze, sqrt(xe*xe + ye*ye))
-        lstring = "Lat: " + str(degrees(lat))
-        lonstring = "Lon: " + str(degrees(lon))
+        lstring = "Lat: " + str(latituderange(degrees(lat)))
+        lonstring = "Lon: " + str(longituderange(degrees(lon)))
 
         #next sidereal time:
         #print(Ls)
@@ -323,6 +329,8 @@ class Luna(object):
             c = abs(b - a)
             a = mlha
             ff += 1
+            if ff >= 100:
+                break
             
         moonset = mlha + utcmoon
         c = 1
@@ -341,6 +349,8 @@ class Luna(object):
             c = b - a
             a = mlha
             ff += 1
+            if ff >= 200:
+                break
 
         moonrise = utcmoon - mlha    
         moonrise = timeadjust(moonrise, utcdis)

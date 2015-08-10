@@ -914,6 +914,35 @@ class Planets(object):
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
 
 
+    def calcNeptuneDate(self, y, m, d, h, mins, second):
+        lat = self.localLat
+        lon = self.localLong
+        d = fnday(y, m, d, h)
+        d += mins/(60*24) + second/(3600*24)            
+        nArray = self.calcNeptune(d)
+        ecl = self.calcecl(d)
+        lonn = nArray[0]
+        latn = nArray[1]
+        rn = nArray[2]
+        sunArray = self.calcsun(d) #[rs, lonsun, vsun, xs, ys, xe, ye, ze, RA, Dec, meanlonsun]
+        lonsun = sunArray[1]
+        meanlonsun = sunArray[10]
+        xs = sunArray[3]
+        ys = sunArray[4]
+
+        #(self, lonecl, latecl, ecl, r, xs, ys):
+        positionArray = self.calcGeocentric(lonn, latn, ecl, rn, xs, ys)
+        #[xe, ye, ze, ra, dec, rg]
+        xe = positionArray[0]
+        ye = positionArray[1]
+        ze = positionArray[2]
+        ra = positionArray[3]
+        dec = positionArray[4]
+        rne = positionArray[5]
+
+        topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rne, ra, dec, lat, lon)
+        return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
+
     def calcPlutoThatIsNotAPlanetNow(self):
         lat = self.localLat
         lon = self.localLong
