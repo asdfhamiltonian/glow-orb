@@ -1,8 +1,73 @@
 import unittest
 
 from planets import *
+import random
 
+class SupportingFunctionsTest(unittest.TestCase):
+    def test_degrees(self):
+        """
+        testing conversion from radians to degrees
+        """
+        self.assertEqual(degrees(pi/2), 90)
+        self.assertEqual(degrees(pi), 180)
+        self.assertEqual(degrees(2*pi), 360)
+        self.assertEqual(degrees(3*pi), 540)
 
+    def test_radians(self):
+        """
+        testing conversion from degrees to radians
+        """
+        self.assertEqual(radians(180), pi)
+        self.assertEqual(radians(360), 2*pi)
+        self.assertEqual(radians(540), 3*pi)
+
+    def test_fnday(self):
+        """
+        fnday should start epoc on january 1st 2000 12am
+        """
+        self.assertEqual(fnday(2000, 1, 0, 0), 0)
+
+    def test_fnipart(self):
+        """
+        fnipart should return whole number part of negative numbers
+        or positive numbers
+        """
+        self.assertEqual(fnipart(-342.77), -342)
+        self.assertEqual(fnipart(-1454.43), -1454)
+        self.assertEqual(fnipart(144.453), 144)
+
+    def test_fnrange(self):
+        """
+        test that fnrange keeps result in range 0 to 2pi
+        """
+        for i in range(0, 10):
+            self.assertLess(fnrange(random.uniform(-25, 25) * pi), 2*pi)
+
+    def test_fnatan2(self):
+        """
+        Testing that it stays in 0 to 2pi range
+        """
+        for i in range(0, 10):
+            x = random.uniform(-2, 2)
+            y = random.uniform(-2, 2)
+            self.assertGreater(fnatan2(x,y), 0)
+            self.assertLess(fnatan2(x, y), 2*pi)
+
+    def test_timeadjust(self):
+        """
+        x should adjust back to 24 hour time
+        """
+        for i in range(0, 10):
+            t = random.uniform(-24, 48)
+            self.assertLess(timeadjust(t, 0), 24)
+            self.assertGreater(timeadjust(t, 0), 0)
+
+    def test_decimaltominsecs(self):
+        self.assertEqual(decimaltominsecs(.5), (30, 0))
+        self.assertEqual(decimaltominsecs(1.5), (30, 0))
+        self.assertEqual(decimaltominsecs(0.25), (15, 0))
+        self.assertEqual(decimaltominsecs(0.75), (45, 0))
+    
 class AzaltTests(unittest.TestCase):
     def setUp(self):
         #set up first location
@@ -77,6 +142,16 @@ class AzaltTests(unittest.TestCase):
         altdif = abs(self.pluto[1] - 11.4794)
         self.assertLess(azdif, 0.2)
         self.assertLess(altdif, 0.2)
+
+    def test_array_size(self):
+        self.assertEqual(len(self.mercury), 4)
+        self.assertEqual(len(self.venus), 4)
+        self.assertEqual(len(self.mars), 4)
+        self.assertEqual(len(self.jupiter), 4)
+        self.assertEqual(len(self.saturn), 4)
+        self.assertEqual(len(self.uranus), 4)
+        self.assertEqual(len(self.neptune), 4)
+        self.assertEqual(len(self.pluto), 4)
 
     def test_mercury2(self):
         """comparing calculated valuse to expected values
@@ -194,6 +269,29 @@ class FutureTests(unittest.TestCase):
         altdif = abs(self.pluto[1] - 22.1272)
         self.assertLess(azdif, 0.2)
         self.assertLess(altdif, 0.2)
+
+class NowTests(unittest.TestCase):
+    def setUp(self):
+        #set up a random location
+        self.location = Planets(random.uniform(-90, 90), random.uniform(-180,180))
+        self.mercury = self.location.calcMercuryNow()
+        self.venus = self.location.calcVenusNow()
+        self.mars = self.location.calcMarsNow()
+        self.jupiter = self.location.calcJupiterNow()
+        self.saturn = self.location.calcSaturnNow()
+        self.uranus = self.location.calcUranusNow()
+        self.neptune = self.location.calcNeptuneNow()
+        self.pluto = self.location.calcPlutoThatIsNotAPlanetNow()
+
+    def test_array_size(self):
+        self.assertEqual(len(self.mercury), 4)
+        self.assertEqual(len(self.venus), 4)
+        self.assertEqual(len(self.mars), 4)
+        self.assertEqual(len(self.jupiter), 4)
+        self.assertEqual(len(self.saturn), 4)
+        self.assertEqual(len(self.uranus), 4)
+        self.assertEqual(len(self.neptune), 4)
+        self.assertEqual(len(self.pluto), 4)
 
 if __name__ == '__main__':
     unittest.main()

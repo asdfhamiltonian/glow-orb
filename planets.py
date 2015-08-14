@@ -21,8 +21,6 @@ def fnipart(x):
 
 def fnrange(angle):
     newangle = angle%(2*pi)
-    if newangle < 0:
-        newangle = newangle + 2*pi
     return newangle
 
 def fnatan2(y, x):
@@ -588,7 +586,7 @@ class Planets(object):
 
         #(self, h, mins, second, day, Ls, r, RA, Dec, lat, lon)
         topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rje, ra, dec, lat, lon)
-        return [degrees(topArray[0]), degrees(topArray[1])]
+        return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
         
     def calcSaturnNow(self):
         lat = self.localLat
@@ -851,7 +849,7 @@ class Planets(object):
 
         #(self, h, mins, second, day, Ls, r, RA, Dec, lat, lon)
         topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rje, ra, dec, lat, lon)
-        return [degrees(topArray[0]), degrees(topArray[1])]
+        return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, dec]
 
     def calcSaturnDate(self, y, m, d, h, mins, second):
         lat = self.localLat
