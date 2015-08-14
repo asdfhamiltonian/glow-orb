@@ -1,9 +1,10 @@
-#Moon 4 arcminute calculation
-#Adapted from original code in QBASIC by Keith Burnett
-#available through this website: http://www.stargazing.net/kepler/moon2.html
-#Futher adatped with algorithms/equations from page "How to Compute Planetary Positions"
-#by Paul Schlyter http://www.stjarnhimlen.se/comp/ppcomp.html#20
-
+"""
+Moon 4 arcminute calculation
+Adapted from original code in QBASIC by Keith Burnett
+available through this website: http://www.stargazing.net/kepler/moon2.html
+Futher adatped with algorithms/equations from page "How to Compute Planetary Positions"
+by Paul Schlyter http://www.stjarnhimlen.se/comp/ppcomp.html#20
+"""
 
 from math import *
 import datetime
@@ -77,12 +78,14 @@ class Luna(object):
         self.localLong = llon
         
     def calculate(self, y, m, d, h, mins, second):
-        #y = datetime.datetime.utcnow().year
-        #m = datetime.datetime.utcnow().month
-        #d = datetime.datetime.utcnow().day
-        #h = datetime.datetime.utcnow().hour
-        #mins = datetime.datetime.utcnow().minute
-        #second = datetime.datetime.utcnow().second
+        """
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day
+        h = datetime.datetime.utcnow().hour
+        mins = datetime.datetime.utcnow().minute
+        second = datetime.datetime.utcnow().second
+        """
         
         h = h + mins / 60 + second / 3600
         d = fnday(y,m,d,h)
@@ -120,21 +123,22 @@ class Luna(object):
         ra = atan2(yes, xes)
         dec = atan2(zes, sqrt(xes*xes + yes*yes))
 
-
-        #'position of Sun
-        #'Es = Ms + Es * SIN(Ms) * (1! + ecs * COS(Ms))
-        #'xv = COS(Es) - ecs
-        #'yv = SQR(1! - ecs * ecs) * SIN(Es)
-        #'vs = FNatn2(yv, xv)
-        #'rs = SQR(xv * xv + yv * yv)
-        #'lonsun = vs + ws
-        #'xs = rs * COS(lonsun)
-        #'ys = rs * SIN(lonsun)
-        #'xe = xs
-        #'ye = ys * COS(ecl)
-        #''ze = ys * SIN(ecl)
-        #'ras = FNatn2(ye, xe)
-        #'decs = FNatn2(ze, sqr(xe * xe + ye * ye))
+        """
+        'position of Sun
+        'Es = Ms + Es * SIN(Ms) * (1! + ecs * COS(Ms))
+        'xv = COS(Es) - ecs
+        'yv = SQR(1! - ecs * ecs) * SIN(Es)
+        'vs = FNatn2(yv, xv)
+        'rs = SQR(xv * xv + yv * yv)
+        'lonsun = vs + ws
+        'xs = rs * COS(lonsun)
+        'ys = rs * SIN(lonsun)
+        'xe = xs
+        'ye = ys * COS(ecl)
+        ''ze = ys * SIN(ecl)
+        'ras = FNatn2(ye, xe)
+        'decs = FNatn2(ze, sqr(xe * xe + ye * ye))
+        """
 
         #Position of Moon
         Em = Mm + ecm * sin(Mm) * (1 + ecm * cos(Mm))
@@ -150,11 +154,13 @@ class Luna(object):
         lon = fnatan2(yh, xh)
         lat = fnatan2(zh, sqrt(xh * xh + yh * yh))
 
-        #perturbations
-        #first needed to calc the args below, which are in radians
-        #MS, Mm - Mean anomaly of the Sun and Moon
-        #Nm - Longitude of the Moon's node
-        #ws, wm - Argument of the perihelion for the Sun and the Moon
+        """
+        perturbations
+        first needed to calc the args below, which are in radians
+        MS, Mm - Mean anomaly of the Sun and Moon
+        Nm - Longitude of the Moon's node
+        ws, wm - Argument of the perihelion for the Sun and the Moon
+        """
 
         Ls = Ms + ws # Mean longitude of the Sun (Ns = 0)
         Lm = Mm + wm + Nm #Mean longitude of the Moon
@@ -186,10 +192,12 @@ class Luna(object):
         dlat = dlat + 0.017 * sin(2 * Mm + F)
         lat = radians(dlat) + lat
 
-        #Need to correct so latitude is between pi/2 and -pi/2 (+90 or -90 degrees)
-        #The above formula had been giving latitudes like "355.679..."
-        #There's some math involved that makes sense if you plot desired output vs. input
-
+        """
+        Need to correct so latitude is between pi/2 and -pi/2 (+90 or -90 degrees)
+        The above formula had been giving latitudes like "355.679..."
+        There's some math involved that makes sense if you plot desired output vs. input
+        """
+        
         while lat < 0:
                 lat = lat + 2*pi
         
@@ -220,12 +228,13 @@ class Luna(object):
         lstring = "Lat: " + str(latituderange(degrees(lat)))
         lonstring = "Lon: " + str(longituderange(degrees(lon)))
 
-        #next sidereal time:
-        #print(Ls)
-        #print(vs+ws)
-        #localLong = float(input("longitude? "))
-        #localLat = float(input("latitude? "))
-        
+        """
+        next sidereal time:
+        print(Ls)
+        print(vs+ws)
+        localLong = float(input("longitude? "))
+        localLat = float(input("latitude? "))
+        """
         
         lat1 = radians(self.localLat)
         gmsto = 12 * (Ls + pi)/(pi)
@@ -289,6 +298,22 @@ class Luna(object):
         self.mpar = mpar
         self.msd = msd
         self.gmsto = gmsto
+
+    def list(self):
+        """
+        Returns current calculated values for the moon position
+        as an array in the following format:
+        [day, right_ascension, declination, latitude_info, longitude_info, azimuth,
+         altitude, phase_info, mean_right_ascension, topocentric_declination, mpar?,
+         msd, gmsto]
+        """
+        return [self.d, self.ra, self.dec, self.lstring, self.lonstring, self.az,
+                self.alttopoc, self.phasestr, self.mra, self.mdecl, self.mpar,
+                self.msd, self.gmsto]
+
+    def calclist(self, y, m, d, h, mins, second):
+        self.calculate(y, m, d, h, mins, second)
+        return self.list()
         
     def now(self):
         y = datetime.datetime.utcnow().year
@@ -298,9 +323,99 @@ class Luna(object):
         mins = datetime.datetime.utcnow().minute
         second = datetime.datetime.utcnow().second
         self.calculate(y, m, d, h, mins, second)
+        #self.print()
+
+    def printnow(self):
+        self.now()
         self.print()
 
+    def listnow(self):
+        """
+        Returns current calculated values for the moon position
+        as an array in the following format:
+        [day, right_ascension, declination, latitude_info, longitude_info, azimuth,
+         altitude, phase_info, mean_right_ascension, topocentric_declination, mpar?,
+         msd, gmsto]
+        """
+        self.now()
+        return self.list()
+
     def riseset(self, dis, utcdis):
+        moonarray = self.risesetlist(dis, utcdis)
+        print("moonrise time is {}:{}:{}".format(moonarray[0], moonarray[1], moonarray[2]))
+        print("moonset time is {}:{}:{}".format(moonarray[3], moonarray[4], moonarray[5]))
+        print("{} iterations".format(moonarray[6]))
+        print("moon utc is {}".format(moonarray[7]))
+        print("ra is {}".format(degrees(self.mra)))
+        """
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day + dis
+        h = datetime.datetime.utcnow().hour
+        mins = datetime.datetime.utcnow().minute
+        second = datetime.datetime.utcnow().second
+        self.calculate(y, m, d, h, mins, second)
+        hmm = radians(-0.583) - self.msd
+        mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(self.mdecl))/(cos(radians(self.localLat)) * cos(self.mdecl))
+        mlha = acos(mlha) * 12 * 15.0 / (15.04107 * pi)
+        utcmoon = (degrees(self.mra) - self.gmsto * 15 - self.localLong) / 15
+        a = mlha
+        c = 1
+        ff = 0
+        while abs(c) > 0.000001:
+            y = datetime.datetime.utcnow().year
+            m = datetime.datetime.utcnow().month
+            d = datetime.datetime.utcnow().day + dis
+            h = utcmoon + a
+            self.calculate(y, m, d, h, 0, 0)
+            hmm = radians(-0.583) - self.msd
+            mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(self.mdecl))/(cos(radians(self.localLat)) * cos(self.mdecl))
+            mlha = acos(mlha) * 12 * 15.0 / (15.04107 * pi)
+            utcmoon = (degrees(self.mra) - self.gmsto * 15 - self.localLong) / 15
+            b = mlha
+            c = abs(b - a)
+            a = mlha
+            ff += 1
+            if ff >= 100:
+                break
+            
+        moonset = mlha + utcmoon
+        c = 1
+        
+        while abs(c) > 0.000001:
+            y = datetime.datetime.utcnow().year
+            m = datetime.datetime.utcnow().month
+            d = datetime.datetime.utcnow().day + dis
+            h = utcmoon - a
+            self.calculate(y, m, d, h, 0, 0)
+            hmm = radians(-0.583) - self.msd
+            mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(self.mdecl))/(cos(radians(self.localLat)) * cos(self.mdecl))
+            mlha = acos(mlha) * 12 * 15.0 / (15.04107 * pi)
+            utcmoon = (degrees(self.mra) - self.gmsto * 15 - self.localLong) / 15
+            b = mlha
+            c = b - a
+            a = mlha
+            ff += 1
+            if ff >= 200:
+                break
+
+        moonrise = utcmoon - mlha    
+        moonrise = timeadjust(moonrise, utcdis)
+        moonrise2 = decimaltominsecs(moonrise)
+        moonset = timeadjust(moonset, utcdis)
+        moonset2 = decimaltominsecs(moonset)"""
+        
+
+    def risesetlist(self, dis, utcdis):
+        """
+        Given a day displacement (dis) and utcdisplacement (utcdis),
+        This function calculates and returns the corresponding moonset
+        and moonrise. The result is given as an array with the following
+        format:
+        [moonrise_hour, moonrise_minute, moonrise_second, moonset_hour,
+         moonset_minute, moonset_second, iterations_needed_calculate,
+         moon_utc]
+        """
         y = datetime.datetime.utcnow().year
         m = datetime.datetime.utcnow().month
         d = datetime.datetime.utcnow().day + dis
@@ -358,11 +473,7 @@ class Luna(object):
         moonset = timeadjust(moonset, utcdis)
         moonset2 = decimaltominsecs(moonset)
 
-        print("moonrise time is {}:{}:{}".format(int(moonrise),moonrise2[0],moonrise2[1]))
-        print("moonset time is {}:{}:{}".format(int(moonset),moonset2[0],moonset2[1]))
-        print("{} iterations".format(ff))
-        print("moon utc is {}".format(utcmoon))
-        print("ra is {}".format(degrees(self.mra)))
+        return [floor(moonrise), moonrise2[0], moonrise2[1], floor(moonset), moonset2[0], moonset2[1], ff, utcmoon]
         
     def print(self):
         #self.now()
