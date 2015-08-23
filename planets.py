@@ -100,7 +100,6 @@ class Planets(object):
         lonsun = fnrange(vsun + wsun)
         meanlonsun = fnrange(Msun + wsun) #- Turns out this is different from lonsun
         
-        
         xs = rs * cos(lonsun)
         ys = rs * sin(lonsun)
         zs = 0
@@ -1061,3 +1060,101 @@ class Planets(object):
         topArray = self.calcTopocentric(h, mins, second, d, meanlonsun, rpe, ra, dec, lat, lon)
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, degrees(dec)]
         
+
+    def calcRiseSet(self, calcPlanetDate, utcdis, y, m, d):
+        lat = self.localLat
+        lon = self.localLong
+        h = 12 - utcdis #calculate for noon local time
+        epochday = fnday(y, m, d, h) #not to be confused with day of the month
+        sunArray = self.calcsun(epochday)
+        planetArray = calcPlanetDate(y, m, d, h, 0, 0)
+        ra = planetArray[2]
+        decl = planetArray[3]
+        Ls = sunArray[10]      #mean longitude of the sun
+        gmst0 = 12 * (Ls + pi)/(pi) #gmst0
+        b = radians(-0.583) #degrees below horizon for set/rise, accounting for refr.
+        UTPlanetInSouth = ((ra * 15) - (gmst0 * 15) - lon) / 15.0
+        if UTPlanetInSouth < 0:
+            UTPlanetInSouth += 24
+        cosLHA = (sin(b) - sin(radians(lat))*sin(decl))/(cos(radians(lat)) * cos(decl))
+        if cosLHA < -1.0:
+            raise ValueError('Planet always above altitude limit')
+        elif cosLHA > 1.0:
+            raise ValueError('Planet always below altitude limit')
+        else:
+            LHA = degrees(acos(cosLHA)) / 15.04107
+            planetrise = UTPlanetInSouth - LHA
+            planetset = UTPlanetInSouth + LHA
+            return [planetrise, planetset, UTPlanetInSouth, LHA]
+
+    def calcMercuryRiseSet(self, utcdis):
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day
+        return self.calcRiseSet(self.calcMercuryDate, utcdis, y, m, d)
+
+    def calcVenusRiseSet(self, utcdis):
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day
+        return self.calcRiseSet(self.calcVenusDate, utcdis, y, m, d)
+
+    def calcMarsRiseSet(self, utcdis):
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day
+        return self.calcRiseSet(self.calcMarsDate, utcdis, y, m, d)
+
+    def calcJupiterRiseSet(self, utcdis):
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day
+        return self.calcRiseSet(self.calcJupiterDate, utcdis, y, m, d)
+
+    def calcSaturnRiseSet(self, utcdis):
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day
+        return self.calcRiseSet(self.calcSaturnDate, utcdis, y, m, d)
+
+    def calcUranusRiseSet(self, utcdis):
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day
+        return self.calcRiseSet(self.calcUranusDate, utcdis, y, m, d)
+            
+    def calcNeptuneRiseSet(self, utcdis):
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day
+        return self.calcRiseSet(self.calcNeptuneDate, utcdis, y, m, d)
+
+    def calcPlutoRiseSet(self, utcdis):
+        y = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        d = datetime.datetime.utcnow().day
+        return self.calcRiseSet(self.calcPlutoDate, utcdis, y, m, d)
+
+    def calcMercuryRiseSetDate(self, utcdis, y, m, d):
+        return self.calcRiseSet(self.calcMercuryDate, utcdis, y, m, d)
+
+    def calcVenusRiseSetDate(self, utcdis, y, m, d):
+        return self.calcRiseSet(self.calcVenusDate, utcdis, y, m, d)
+
+    def calcMarsRiseSetDate(self, utcdis, y, m, d):
+        return self.calcRiseSet(self.calcMarsDate, utcdis, y, m, d)
+
+    def calcJupiterRiseSetDate(self, utcdis, y, m, d):
+        return self.calcRiseSet(self.calcJupiterDate, utcdis, y, m, d)
+
+    def calcSaturnRiseSetDate(self, utcdis, y, m, d):
+        return self.calcRiseSet(self.calcSaturnDate, utcdis, y, m, d)
+
+    def calcUranusRiseSetDate(self, utcdis, y, m, d):
+        return self.calcRiseSet(self.calcUranusDate, utcdis, y, m, d)
+            
+    def calcNeptuneRiseSetDate(self, utcdis, y, m, d):
+        return self.calcRiseSet(self.calcNeptuneDate, utcdis, y, m, d)
+
+    def calcPlutoRiseSetDate(self, utcdis, y, m, d):
+        return self.calcRiseSet(self.calcPlutoDate, utcdis, y, m, d)
