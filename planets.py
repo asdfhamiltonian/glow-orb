@@ -1,4 +1,5 @@
 from math import *
+from functools import partial
 import datetime
 
 #Planetary positions calculator
@@ -1061,6 +1062,15 @@ class Planets(object):
         return [degrees(topArray[0]), degrees(topArray[1]), degrees(ra)/15, degrees(dec)]
         
 
+    def localTime(self, t, utcdis):
+        t += utcdis
+        t = t % 24
+        return t
+
+    def localTimeArray(self, array, utcdis):
+        local = partial(self.localTime, utcdis=utcdis)
+        return list(map(local, array))
+
     def calcRiseSet(self, calcPlanetDate, utcdis, y, m, d):
         lat = self.localLat
         lon = self.localLong
@@ -1085,7 +1095,8 @@ class Planets(object):
             LHA = degrees(acos(cosLHA)) / 15.04107
             planetrise = UTPlanetInSouth - LHA
             planetset = UTPlanetInSouth + LHA
-            return [planetrise, planetset, UTPlanetInSouth, LHA]
+            utcArray = [planetrise, planetset, UTPlanetInSouth, LHA] #times in UTC
+            return self.localTimeArray(utcArray, utcdis) #converted to local time
 
     def calcMercuryRiseSet(self, utcdis):
         y = datetime.datetime.utcnow().year
@@ -1158,3 +1169,27 @@ class Planets(object):
 
     def calcPlutoRiseSetDate(self, utcdis, y, m, d):
         return self.calcRiseSet(self.calcPlutoDate, utcdis, y, m, d)
+
+    def allRiseSet(self, utcdis):
+        risesets = [
+        self.calcMercuryRiseSet(utcdis),
+        self.calcVenusRiseSet(utcdis),
+        self.calcMarsRiseSet(utcdis),
+        self.calcJupiterRiseSet(utcdis),
+        self.calcSaturnRiseSet(utcdis),
+        self.calcUranusRiseSet(utcdis),
+        self.calcNeptuneRiseSet(utcdis),
+        self.calcPlutoRiseSet(utcdis),
+        ]
+        planetnames = ["mercury", "venus", "mars", "jupiter",
+        "saturn", "uranus", "neptune", "pluto",
+        ]
+        riseSetString = ""
+        for num in range(0, 8):
+            data = risesets[num]
+            a = planetnames[num] + ": rise {}, set {}. \n".format(data[0] , data[1])
+            riseSetString += a
+
+        print(riseSetString)
+        
+        
