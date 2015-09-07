@@ -1,4 +1,4 @@
-# glow-orb
+# Planets/Wadokei/Luna
 python programs for calculating sunset/sunrise times, moon position, etc.
 
 sun2.py:
