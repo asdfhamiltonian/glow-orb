@@ -266,10 +266,9 @@ class Luna(object):
 
     def riseSetString(self, dis, utcdis):
         moonArray = self.risesetlist(dis, utcdis)
-        moonString = "moonrise time is {}:{}:{}".format(moonArray[0], moonArray[1], moonArray[2])
-        moonString += "\nmoonset time is {}:{}:{}".format(moonArray[3], moonArray[4], moonArray[5])
-        moonString += "\n{} iterations".format(moonArray[6])
-        moonString += "\nmoon utc is {}".format(moonArray[7])
+        moonString = "moonrise time is " + moonArray[0]
+        moonString += "\nmoonset time is "+ moonArray[1]
+        moonString += "\n{} iterations".format(moonArray[2])
         print(moonString)
 
     def risesetlist(self, dis, utcdis):
@@ -352,5 +351,6 @@ class Luna(object):
         moonset = timeadjust(moonset, utcdis)
         moonset2 = decimaltominsecs(moonset)
 
-        return [floor(moonrise), moonrise2[0], moonrise2[1], floor(moonset), moonset2[0], moonset2[1], ff, utcmoon]
-        
+        return ["{}:{}:{}".format(floor(moonrise), moonrise2[0], moonrise2[1]),
+                "{}:{}:{}".format(floor(moonset), moonset2[0], moonset2[1]),
+                ff, [moonrise, moonrise2, moonset, moonset2]]
