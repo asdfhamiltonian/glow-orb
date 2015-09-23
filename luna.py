@@ -264,17 +264,13 @@ class Luna(object):
         second = datetime.datetime.utcnow().second
         return self.calculate(y, m, d, h, mins, second)
 
-    def printnow(self):
-        self.now()
-        self.print()
-
-    def riseset(self, dis, utcdis):
-        moonarray = self.risesetlist(dis, utcdis)
-        print("moonrise time is {}:{}:{}".format(moonarray[0], moonarray[1], moonarray[2]))
-        print("moonset time is {}:{}:{}".format(moonarray[3], moonarray[4], moonarray[5]))
-        print("{} iterations".format(moonarray[6]))
-        print("moon utc is {}".format(moonarray[7]))
-        print("ra is {}".format(degrees(self.mra)))
+    def riseSetString(self, dis, utcdis):
+        moonArray = self.risesetlist(dis, utcdis)
+        moonString = "moonrise time is {}:{}:{}".format(moonArray[0], moonArray[1], moonArray[2])
+        moonString += "\nmoonset time is {}:{}:{}".format(moonArray[3], moonArray[4], moonArray[5])
+        moonString += "\n{} iterations".format(moonArray[6])
+        moonString += "\nmoon utc is {}".format(moonArray[7])
+        print(moonString)
 
     def risesetlist(self, dis, utcdis):
         """
@@ -297,7 +293,6 @@ class Luna(object):
         mra = moonArray[5]
         mdecl = moonArray[6]
         gmsto = moonArray[11]
-        print(msd, mra, mdecl, gmsto)
         hmm = radians(-0.583) - msd
         mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(mdecl))/(cos(radians(self.localLat)) * cos(mdecl))
         mlha = acos(mlha) * 12 * 15.0 / (15.04107 * pi)
@@ -359,16 +354,3 @@ class Luna(object):
 
         return [floor(moonrise), moonrise2[0], moonrise2[1], floor(moonset), moonset2[0], moonset2[1], ff, utcmoon]
         
-    def print(self):
-        #self.now()
-        print("days: {}".format(self.d))
-        print(self.ra)
-        print("RA: " + str(degrees(self.ra)/15))
-        print("Dec " + str(degrees(self.dec)))
-        print(self.lstring)
-        print(self.lonstring)
-        print("Azimuth is {} degrees".format(str(degrees(self.az))))
-        print("Corrected Alt is {} degrees".format(str(degrees(self.alttopoc))))
-        print(self.phasestr)
-
-
