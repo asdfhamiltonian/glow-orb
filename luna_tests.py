@@ -38,15 +38,15 @@ class AzAltTests(unittest.TestCase):
         Compares azimuth and altitude values to Nasa's
         HORIZONs ephemeris for US location
         """
-        azdif = abs(degrees(self.location.calclist(2015,8,10,9,0,0)[5]) - 57.7800)
-        altdif = abs(degrees(self.location.calclist(2015,8,10,9,0,0)[6]) - -5.7166)
+        azdif = abs(self.location.calculate(2015,8,10,9,0,0)[0] - 57.7800)
+        altdif = abs(self.location.calculate(2015,8,10,9,0,0)[1] - -5.7166)
         self.assertLess(azdif, 0.03)
         self.assertLess(altdif, 0.03)
 
         #25 years later, year 2040:
         
-        azdif = abs(degrees(self.location.calclist(2040,8,10,9,0,0)[5]) - 341.3909)
-        altdif = abs(degrees(self.location.calclist(2040,8,10,9,0,0)[6]) - -33.0098)
+        azdif = abs(self.location.calculate(2040,8,10,9,0,0)[0] - 341.3909)
+        altdif = abs(self.location.calculate(2040,8,10,9,0,0)[1] - -33.0098)
         self.assertLess(azdif, 0.03)
         self.assertLess(altdif, 0.03)
 
@@ -55,15 +55,15 @@ class AzAltTests(unittest.TestCase):
         Compares azimuth and altitude values to Nasa's
         HORIZONs ephemeris for Japan Location
         """
-        azdif = abs(degrees(self.location2.calclist(2015,8,10,9,0,0)[5]) - 322.4536)
-        altdif = abs(degrees(self.location2.calclist(2015,8,10,9,0,0)[6]) - -27.5202)
+        azdif = abs(self.location2.calculate(2015,8,10,9,0,0)[0] - 322.4536)
+        altdif = abs(self.location2.calculate(2015,8,10,9,0,0)[1] - -27.5202)
         self.assertLess(azdif, 0.03)
         self.assertLess(altdif, 0.03)
 
         #25 years later, year 2040:
         
-        azdif = abs(degrees(self.location2.calclist(2040,8,10,9,0,0)[5]) - 264.9162)
-        altdif = abs(degrees(self.location2.calclist(2040,8,10,9,0,0)[6]) - 24.3637)
+        azdif = abs(self.location2.calculate(2040,8,10,9,0,0)[0] - 264.9162)
+        altdif = abs(self.location2.calculate(2040,8,10,9,0,0)[1] - 24.3637)
         self.assertLess(azdif, 0.03)
         self.assertLess(altdif, 0.03)
         
