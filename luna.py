@@ -227,16 +227,16 @@ class Luna(object):
         zhor = x * cos(lat1) + z * sin(lat1)
 
         az = atan2( yhor, xhor) + pi
-        az = degrees(az)
+        azdegrees = degrees(az)
         alt = asin(zhor)
-        alt = degrees(alt)
 
         #now to correct for topocentricity?
         #see http://www.stjarnhimlen.se/comp/ppcomp.html#12b for more info about this
         mpar = asin(1 / rm)
         msd = asin(0.2725 / rm)
         alttopoc = alt - mpar * cos(alt) 
-
+        altdegrees = degrees(alttopoc)
+        
         #calculating "geocentric lattitude" accounting for flattening of earth:
         gclat = lat1 - radians(0.1924) * sin(2 * lat1)
         rho = 0.99833 + 0.00167 * cos(2 * lat1)
@@ -253,7 +253,7 @@ class Luna(object):
         FV = pi - elong
         phase = (1 + cos(FV))/2
 
-        return [az, alttopoc, ra, dec, phase, topRA, topDecl, mpar, msd, londegrees, latdegrees, d]
+        return [azdegrees, altdegrees, ra, dec, phase, topRA, topDecl, mpar, msd, londegrees, latdegrees, gmsto, d]
         
     def now(self):
         y = datetime.datetime.utcnow().year
@@ -293,12 +293,15 @@ class Luna(object):
         mins = datetime.datetime.utcnow().minute
         second = datetime.datetime.utcnow().second
         moonArray = self.calculate(y, m, d, h, mins, second)
-        msd = moonArray[7]
-        
+        msd = moonArray[8]
+        mra = moonArray[5]
+        mdecl = moonArray[6]
+        gmsto = moonArray[11]
+        print(msd, mra, mdecl, gmsto)
         hmm = radians(-0.583) - msd
-        mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(self.mdecl))/(cos(radians(self.localLat)) * cos(self.mdecl))
+        mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(mdecl))/(cos(radians(self.localLat)) * cos(mdecl))
         mlha = acos(mlha) * 12 * 15.0 / (15.04107 * pi)
-        utcmoon = (degrees(self.mra) - self.gmsto * 15 - self.localLong) / 15
+        utcmoon = (degrees(mra) - gmsto * 15 - self.localLong) / 15
         a = mlha
         c = 1
         ff = 0
@@ -307,11 +310,15 @@ class Luna(object):
             m = datetime.datetime.utcnow().month
             d = datetime.datetime.utcnow().day + dis
             h = utcmoon + a
-            self.calculate(y, m, d, h, 0, 0)
-            hmm = radians(-0.583) - self.msd
-            mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(self.mdecl))/(cos(radians(self.localLat)) * cos(self.mdecl))
+            moonArray = self.calculate(y, m, d, h, 0, 0)
+            msd = moonArray[8]
+            mra = moonArray[5]
+            mdecl = moonArray[6]
+            gmsto = moonArray[11]
+            hmm = radians(-0.583) - msd
+            mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(mdecl))/(cos(radians(self.localLat)) * cos(mdecl))
             mlha = acos(mlha) * 12 * 15.0 / (15.04107 * pi)
-            utcmoon = (degrees(self.mra) - self.gmsto * 15 - self.localLong) / 15
+            utcmoon = (degrees(mra) - gmsto * 15 - self.localLong) / 15
             b = mlha
             c = abs(b - a)
             a = mlha
@@ -327,11 +334,16 @@ class Luna(object):
             m = datetime.datetime.utcnow().month
             d = datetime.datetime.utcnow().day + dis
             h = utcmoon - a
-            self.calculate(y, m, d, h, 0, 0)
-            hmm = radians(-0.583) - self.msd
-            mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(self.mdecl))/(cos(radians(self.localLat)) * cos(self.mdecl))
+            moonArray = self.calculate(y, m, d, h, 0, 0)
+            msd = moonArray[8]
+            mra = moonArray[5]
+            mdecl = moonArray[6]
+            gmsto = moonArray[11]
+            
+            hmm = radians(-0.583) - msd
+            mlha = (sin(hmm) - sin(radians(self.localLat)) * sin(mdecl))/(cos(radians(self.localLat)) * cos(mdecl))
             mlha = acos(mlha) * 12 * 15.0 / (15.04107 * pi)
-            utcmoon = (degrees(self.mra) - self.gmsto * 15 - self.localLong) / 15
+            utcmoon = (degrees(mra) - gmsto * 15 - self.localLong) / 15
             b = mlha
             c = b - a
             a = mlha
