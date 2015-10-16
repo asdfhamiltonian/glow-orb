@@ -3,6 +3,7 @@ import unittest
 from planets import *
 import random
 
+
 class SupportingFunctionsTest(unittest.TestCase):
     def test_degrees(self):
         """
@@ -50,7 +51,7 @@ class SupportingFunctionsTest(unittest.TestCase):
         for i in range(0, 10):
             x = random.uniform(-2, 2)
             y = random.uniform(-2, 2)
-            self.assertGreater(fnatan2(x,y), 0)
+            self.assertGreater(fnatan2(x, y), 0)
             self.assertLess(fnatan2(x, y), 2*pi)
 
     def test_timeadjust(self):
@@ -67,10 +68,11 @@ class SupportingFunctionsTest(unittest.TestCase):
         self.assertEqual(decimaltominsecs(1.5), (30, 0))
         self.assertEqual(decimaltominsecs(0.25), (15, 0))
         self.assertEqual(decimaltominsecs(0.75), (45, 0))
-    
+
+
 class AzaltTests(unittest.TestCase):
     def setUp(self):
-        #set up first location
+        # set up first location
         self.location = Planets(45.394531, -122.694264)
         self.mercury = self.location.calcMercuryDate(2015, 8, 10, 9, 0, 0)
         self.venus = self.location.calcVenusDate(2015, 8, 10, 9, 0, 0)
@@ -91,7 +93,6 @@ class AzaltTests(unittest.TestCase):
         self.neptune2 = self.location2.calcNeptuneDate(2015, 8, 10, 9, 0, 0)
         self.pluto2 = self.location2.calcPlutoDate(2015, 8, 10, 9, 0, 0)
 
-        
     def test_mercury(self):
         """comparing calculated valuse to expected values
         from NASA's HORIZONS ephemeris for a given location
@@ -204,6 +205,7 @@ class AzaltTests(unittest.TestCase):
         self.assertLess(azdif, 0.2)
         self.assertLess(altdif, 0.2)
 
+
 class FutureTests(unittest.TestCase):
     def setUp(self):
         """Testing to see if still accurate
@@ -270,10 +272,12 @@ class FutureTests(unittest.TestCase):
         self.assertLess(azdif, 0.2)
         self.assertLess(altdif, 0.2)
 
+
 class NowTests(unittest.TestCase):
     def setUp(self):
-        #set up a random location
-        self.location = Planets(random.uniform(-90, 90), random.uniform(-180,180))
+        # set up a random location
+        self.location = Planets(random.uniform(-90, 90),
+                                random.uniform(-180, 180))
         self.mercury = self.location.calcMercuryNow()
         self.venus = self.location.calcVenusNow()
         self.mars = self.location.calcMarsNow()
