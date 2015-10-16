@@ -1,5 +1,5 @@
 # Planets/Wadokei/Luna
-python programs for calculating sunset/sunrise times, moon position, etc.
+Python programs for basic astronomical calculations
 
 sun2.py:
 Python object that uses longitude, latitude to calculate times for sunrise, sunset and solar noon. Also calculates duration of sunlight for a day.
