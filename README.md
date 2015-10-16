@@ -2,10 +2,9 @@
 python programs for calculating sunset/sunrise times, moon position, etc.
 
 sun2.py:
-
 Python object that uses longitude, latitude to calculate times for sunrise, sunset and solar noon. Also calculates duration of sunlight for a day.
 
-There is additional code for calculating the present time on a Wadokei.
+There is additional code for calculating the current Wadokei time.
 More information available on wikipedia:
 http://en.wikipedia.org/wiki/Japanese_clock
 
