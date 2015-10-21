@@ -1,47 +1,54 @@
-from math import *
-from functools import partial
-import datetime
-from collections import OrderedDict
-
 '''
 Planetary positions calculator
 Programmed with algorithms/equations from "How to Compute Planetary Positions"
 by Paul Schlyter http://www.stjarnhimlen.se/comp/ppcomp.html#20
 '''
 
+from math import copysign, floor, pi, atan2, sqrt, cos, sin, acos, asin
+from functools import partial
+import datetime
+from collections import OrderedDict
+
 
 def degrees(rads):
-    return (rads / pi) * 180
+    """converts radians to degrees"""
+    return rads / pi * 180
 
 
 def radians(degrees):
-    return (degrees / 180 * pi)
+    """converts degrees to radians"""
+    return degrees / 180 * pi
 
 
 def fnday(y, m, d, h):
+    """calculates epoch day from calendar date"""
     a = 367 * y - 7 * (y + (m + 9) // 12) // 4 + 275 * m // 9
     a += d - 730530 + h / 24
     return a
 
 
 def fnipart(x):
+    """returns the whole number portion of a real number, positive or negative"""
     return copysign(1, x) * floor(abs(x))
 
 
 def fnrange(angle):
+    """converts angle in radians to the range 0 to 2pi"""
     newangle = angle % (2 * pi)
     return newangle
 
 
 def fnatan2(y, x):
+    """atan2 function"""
     a = atan2(y, x)
     if a < 0:
         a = a + 2 * pi
     return a
 
 
-def timeadjust(x, utc):
-    x = x + utc
+def timeadjust(utcdis, utc):
+    """returns local time, given UTC displacement and UTC time"""
+    x = utcdis + utc
     while x < 0:
         x = x + 24
     if x > 24:
@@ -50,6 +57,7 @@ def timeadjust(x, utc):
 
 
 def decimaltominsecs(x):
+    """decimal of an hour time to minutes and seconds"""
     x = x % 1
     mins = floor(x * 60)
     x = (x * 60) % 1
@@ -110,8 +118,7 @@ class Planets(object):
         vsun = positionArray[5]
         rs = positionArray[6]
         lonsun = fnrange(vsun + wsun)
-        meanlonsun = fnrange(Msun + wsun)
-        '''meanlonsun is different from lonsun'''
+        meanlonsun = fnrange(Msun + wsun)  # meanlonsun, lonsun are different
 
         xs = rs * cos(lonsun)
         ys = rs * sin(lonsun)
@@ -471,7 +478,7 @@ class Planets(object):
         wu = uArray[2]
         au = uArray[3]
         eu = uArray[4]
-        '''Mj = jArray[5]'''
+        # Mj = jArray[5]
 
         calcArray = self.calcposition(Nu, iu, wu, au, eu, Mu)
         lon = calcArray[3]
@@ -805,11 +812,9 @@ class Planets(object):
                     self.calcSaturnRiseSet(utcdis),
                     self.calcUranusRiseSet(utcdis),
                     self.calcNeptuneRiseSet(utcdis),
-                    self.calcPlutoRiseSet(utcdis)
-                    ]
+                    self.calcPlutoRiseSet(utcdis)]
         planetnames = ["mercury", "venus", "mars", "jupiter",
-                       "saturn", "uranus", "neptune", "pluto",
-                       ]
+                       "saturn", "uranus", "neptune", "pluto"]
         riseSetString = ""
         for num in range(0, 8):
             data = risesets[num]
@@ -829,8 +834,7 @@ class Planets(object):
                     self.calcNeptuneRiseSet(utcdis),
                     self.calcPlutoRiseSet(utcdis)]
         planetnames = ["mercury", "venus", "mars", "jupiter",
-                       "saturn", "uranus", "neptune", "pluto",
-                       ]
+                       "saturn", "uranus", "neptune", "pluto"]
         planetDict = OrderedDict()
         for num in range(0, 8):
             data = risesets[num]
