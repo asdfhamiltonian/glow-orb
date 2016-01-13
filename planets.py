@@ -838,7 +838,7 @@ class Planets(object):
         planetDict = OrderedDict()
         for num in range(0, 8):
             data = risesets[num]
-            subdict = {}
+            subdict = OrderedDict()
             subdict["rise"] = data[0]
             subdict["set"] = data[1]
             planetDict[planetnames[num]] = subdict
